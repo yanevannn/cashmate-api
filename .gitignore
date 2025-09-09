@@ -1,0 +1,17 @@
+# Go build
+/bin/
+/build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Environment variables
+.env
+
+# IDE / Editor
+.vscode/
+
+# Log / Temp files
+*.log
+*.tmp
