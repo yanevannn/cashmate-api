@@ -7,10 +7,13 @@ import (
 
     "github.com/joho/godotenv"
 	"cashmate-api/routes"
+    "cashmate-api/config"
 )
 
 func main() {
     godotenv.Load()
+
+    config.ConnectDB()
 
     port := os.Getenv("PORT")
     if port == "" {

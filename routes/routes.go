@@ -8,5 +8,5 @@ import (
 const apiV1 = "/v1"
 
 func RegisterRoutes() {
-	http.HandleFunc(apiV1+"/user", controllers.UserHandler)
+	http.HandleFunc(apiV1+"/user", controllers.CreateUserHandler)
 }
