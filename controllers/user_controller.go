@@ -26,7 +26,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
     // Call Service to Create User and send variable user
-	if err := services.CreateUserService(user); err != nil {
+	if err := services.CreateUserService(&user); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(models.ErrorResponse{
@@ -37,5 +37,9 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(models.SuccessResponse{
+		Success: "true",
+		Message: "User created successfully",
+		Data:    user,
+	})
 }
