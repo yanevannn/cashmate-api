@@ -91,3 +91,31 @@ func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 		Data:    publicUser,
 	})
 }
+
+
+func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: "Method not allowed",
+		})
+		return
+	}
+
+	users, err := services.GetAllUsersService()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(models.SuccessResponse{
+		Success: "true",
+		Message: "Users retrieved successfully",
+		Data:    users,
+	})
+}

@@ -30,3 +30,20 @@ func GetUserByIDService(id int) (*models.User, error) {
 
 	return user, nil
 }
+
+func GetAllUsersService() ([]models.PublicUser, error) {
+	users , err := repositories.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	// Extract data to exclude passwords
+	var publicUsers []models.PublicUser
+	for _, user := range users {
+		publicUsers = append(publicUsers, models.PublicUser{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		})
+	}
+	return publicUsers, nil
+}

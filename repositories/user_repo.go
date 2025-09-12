@@ -42,3 +42,31 @@ func GetuserByID(id int) (*models.User, error) {
     }
     return &user, nil
 }
+
+func GetAllUsers() ([]models.User, error) {
+    conn, err := config.ConnectDB()
+    if err != nil {
+        return nil, err
+    }
+    defer conn.Close(context.Background())
+
+    query := `SELECT id, username, email, password FROM users`
+    rows, err := conn.Query(context.Background(), query)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    var users []models.User
+    for rows.Next() {
+        var user models.User
+        err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+        if err != nil {
+            log.Println("Error scanning user:", err)
+            continue
+        }
+        users = append(users, user)
+    }
+
+    return users, nil
+}
