@@ -9,4 +9,5 @@ const apiV1 = "/v1"
 
 func RegisterRoutes() {
 	http.HandleFunc(apiV1+"/user", controllers.CreateUserHandler)
+	http.HandleFunc(apiV1+"/user/", controllers.GetUserByIDHandler)
 }

@@ -22,3 +22,23 @@ func CreateUser(user *models.User) error{
     }
     return nil
 }
+
+func GetuserByID(id int) (*models.User, error) {
+    conn, err := config.ConnectDB()
+    if err != nil {
+        return nil, err
+    }
+    defer conn.Close(context.Background())
+
+    // query := `SELECT * FROM users WHERE id = $1`
+    query := `SELECT id, username, email, password FROM users WHERE id = $1` // Specify columns explicitly makes it clearer and avoids issues if table schema changes
+    row := conn.QueryRow(context.Background(), query, id)
+    var user models.User
+    err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+
+    if err != nil {
+        log.Println("Error fetching user by ID:", err)
+        return nil, err
+    }
+    return &user, nil
+}

@@ -5,6 +5,8 @@ import (
 	"cashmate-api/services"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,5 +43,51 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		Success: "true",
 		Message: "User created successfully",
 		Data:    user,
+	})
+}
+
+func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: "Method not allowed",
+		})
+		return
+	}
+
+	// Extract user ID from query parameters
+	idStr := strings.TrimPrefix(r.URL.Path, "/v1/user/")
+    userID, err := strconv.Atoi(idStr)
+    if err != nil || userID <= 0 {
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: "Invalid user ID" + err.Error(),
+		})
+		return
+    }
+
+	// Call Service to get user by ID
+	user, err := services.GetUserByIDService(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: err.Error(),
+		})
+		return
+	}
+	
+	// Create a PublicUser instance to exclude the password
+	publicUser := models.PublicUser{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	json.NewEncoder(w).Encode(models.SuccessResponse{
+		Success: "true",
+		Message: "User retrieved successfully",
+		Data:    publicUser,
 	})
 }

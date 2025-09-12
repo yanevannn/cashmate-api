@@ -13,3 +13,20 @@ func CreateUserService(user *models.User) error {
 	}
 	return repositories.CreateUser(user)
 }
+
+func GetUserByIDService(id int) (*models.User, error) {
+	if id <= 0 {
+		return nil, fmt.Errorf("invalid user ID")
+	}
+
+	user, err := repositories.GetuserByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return user, nil
+}
