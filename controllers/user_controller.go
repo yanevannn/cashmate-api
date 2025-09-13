@@ -1,32 +1,25 @@
 package controllers
 
 import (
-	"cashmate-api/models"
-	"cashmate-api/services"
-	"cashmate-api/utils"
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
+
+	"cashmate-api/models"
+	"cashmate-api/services"
+	"cashmate-api/utils"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	// Cek Method Request [POST]
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed) // Set status code 405 w.WriteHeader(number ex 404 or using http._status)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Method not allowed",
-		})
-		return
-	}
-
 	// Parse Body Request for preparing data to be inserted
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close() // Close the body when done
 
 	// Call Service to Create User and send variable user
 	if err := services.CreateUserService(&user); err != nil {
@@ -47,17 +40,8 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Method not allowed",
-		})
-		return
-	}
-
 	// Extract user ID from query parameters
-	idStr := strings.TrimPrefix(r.URL.Path, "/v1/user/")
+	idStr := chi.URLParam(r, "id")
 	userID, err := strconv.Atoi(idStr)
 	if err != nil || userID <= 0 {
 		json.NewEncoder(w).Encode(models.ErrorResponse{
@@ -93,15 +77,6 @@ func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Method not allowed",
-		})
-		return
-	}
-
 	users, err := services.GetAllUsersService()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -120,17 +95,8 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Method not allowed",
-		})
-		return
-	}
-
 	// Extract user ID from query parameters
-	id := strings.TrimPrefix(r.URL.Path, "/v1/user/delete/")
+	id := chi.URLParam(r, "id")
 	userID, err := strconv.Atoi(id)
 	if err != nil || userID <= 0 {
 		json.NewEncoder(w).Encode(models.ErrorResponse{
