@@ -13,30 +13,21 @@ import (
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() // Ensure the body is closed after processing
 	// Parse Body Request for preparing data to be inserted
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.ResError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	defer r.Body.Close() // Close the body when done
 
 	// Call Service to Create User and send variable user
 	if err := services.CreateUserService(&user); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: err.Error(),
-		})
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.ResSuccess(w, http.StatusCreated, models.SuccessResponse{
-		Success: "true",
-		Message: "User created successfully",
-		Data:    user,
-	})
+	utils.ResSuccess(w, http.StatusCreated, "User created successfully", nil)
 }
 
 func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,21 +35,14 @@ func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	userID, err := strconv.Atoi(idStr)
 	if err != nil || userID <= 0 {
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Invalid user ID" + err.Error(),
-		})
+		utils.ResError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
 	// Call Service to get user by ID
 	user, err := services.GetUserByIDService(userID)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: err.Error(),
-		})
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -69,29 +53,17 @@ func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 		Email:    user.Email,
 	}
 
-	utils.ResSuccess(w, http.StatusOK, models.SuccessResponse{
-		Success: "true",
-		Message: "User retrieved successfully",
-		Data:    publicUser,
-	})
+	utils.ResSuccess(w, http.StatusOK, "User retrieved successfully", publicUser)
 }
 
 func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := services.GetAllUsersService()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: err.Error(),
-		})
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.ResSuccess(w, http.StatusOK, models.SuccessResponse{
-		Success: "true",
-		Message: "Users retrieved successfully",
-		Data:    users,
-	})
+	utils.ResSuccess(w, http.StatusOK, "Users retrieved successfully", users)
 }
 
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,27 +71,16 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	userID, err := strconv.Atoi(id)
 	if err != nil || userID <= 0 {
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: "Invalid user ID",
-		})
+		utils.ResError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
 	// Call Service to delete user by ID
 	err = services.DeleteUserService(userID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ErrorResponse{
-			Success: "false",
-			Message: err.Error(),
-		})
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.ResSuccess(w, http.StatusOK, models.SuccessResponse{
-		Success: "true",
-		Message: "User deleted successfully",
-		Data:    nil,
-	})
+	utils.ResSuccess(w, http.StatusOK, "User deleted successfully", nil)
 }
