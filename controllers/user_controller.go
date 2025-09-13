@@ -119,3 +119,42 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 		Data:    users,
 	})
 }
+
+func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: "Method not allowed",
+		})
+		return
+	}
+
+	// Extract user ID from query parameters
+	id := strings.TrimPrefix(r.URL.Path, "/v1/user/delete/")
+	userID, err := strconv.Atoi(id)
+	if err != nil || userID <= 0 {
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: "Invalid user ID",
+		})
+		return
+	}
+
+	// Call Service to delete user by ID
+	err = services.DeleteUserService(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.ErrorResponse{
+			Success: "false",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(models.SuccessResponse{
+		Success: "true",
+		Message: "User deleted successfully",
+	})
+}

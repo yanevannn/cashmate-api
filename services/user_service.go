@@ -47,3 +47,14 @@ func GetAllUsersService() ([]models.PublicUser, error) {
 	}
 	return publicUsers, nil
 }
+
+func DeleteUserService(id int) error {
+	if id <= 0 {
+		return fmt.Errorf("invalid user ID")
+	}
+	err := repositories.DeleteUser(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -70,3 +70,19 @@ func GetAllUsers() ([]models.User, error) {
 
     return users, nil
 }
+
+func DeleteUser(id int) error {
+    conn, err := config.ConnectDB()
+    if err != nil {
+        return err
+    }
+    defer conn.Close(context.Background())
+
+    query := `DELETE FROM users WHERE id = $1`
+    _, err = conn.Exec(context.Background(), query, id)
+    if err != nil {
+        log.Println("Error deleting user:", err)
+        return err
+    }
+    return nil
+}

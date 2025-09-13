@@ -22,6 +22,6 @@ func main() {
 
 	routes.RegisterRoutes()
     
-    log.Println("Server running on port", port)
+    log.Printf("Server running on port http://localhost:%s", port)
     log.Fatal(http.ListenAndServe(":"+port, nil))
 }
