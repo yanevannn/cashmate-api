@@ -18,6 +18,13 @@ func RegisterRoutes(r *chi.Mux) {
 			r.Get("/", controllers.GetAllUsersHandler)
 			r.Delete("/{id}", controllers.DeleteUserHandler)
 		})
+
+		// Category Routes
+		r.Route("/categories", func(r chi.Router) {
+			r.Get("/", controllers.GetAllCategoriesHandler)
+			r.Post("/", controllers.CreateCategoryHandler)
+			r.Put("/{id}", controllers.UpdateCategoryHandler)
+		})
 	})
 
 }
