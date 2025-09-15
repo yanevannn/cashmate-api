@@ -1,15 +1,19 @@
 package controllers
 
 import (
-	"cashmate-api/models"
-	"cashmate-api/services"
-	"cashmate-api/utils"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"cashmate-api/models"
+	"cashmate-api/services"
+	"cashmate-api/utils"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
+
+var validate = validator.New()
 
 func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	categories, err := services.GetAllCategoriesService()
@@ -25,6 +29,12 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request){
 	var categoriesInput models.CreateCategoryInput
 	if err := json.NewDecoder(r.Body).Decode(&categoriesInput); err != nil {
 		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Validate input
+	if err := validate.Struct(categoriesInput); err != nil {
+		utils.ResValidationError(w, err)
 		return
 	}
 

@@ -17,4 +17,4 @@
 *.tmp
 
 # I DO NOT WANT TO TRACK THESE FILES
-api-docs/*
+docs/*
