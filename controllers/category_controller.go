@@ -32,9 +32,9 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	// Validate input
-	if err := validate.Struct(categoriesInput); err != nil {
-		utils.ResValidationError(w, err)
+	// Validasi input menggunakan ozzo
+	if err := categoriesInput.Validate(); err != nil {
+		utils.ResValidationError(w, err) // Pastikan fungsi ini bisa menampilkan error ozzo
 		return
 	}
 
@@ -61,6 +61,14 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request){
 		utils.ResError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	categoryInput.ID = categoriesID
+	// Validasi input menggunakan ozzo
+	if err := categoryInput.Validate(); err != nil {
+		utils.ResValidationError(w, err) // Pastikan fungsi ini bisa menampilkan error ozzo
+		return
+	}
+
 	
 	// Temporary hardcoded user ID for testing purposes
 	userID := 1

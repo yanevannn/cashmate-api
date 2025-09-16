@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type APIResponse struct {
@@ -43,17 +43,21 @@ func ResValidationError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
 
-	if errs, ok := err.(validator.ValidationErrors); ok {
-		errorsMap := make(map[string]string)
-		for _, e := range errs {
-			errorsMap[e.Field()] = e.Error()
-		}
+	errorsMap := make(map[string]string)
 
-		json.NewEncoder(w).Encode(ValidationErrorResponse{
-			Success: false,
-			Message: "Validation failed",
-			Errors:  errorsMap,
-		})
-		return
+	// cek apakah error dari ozzo-validation
+	if ve, ok := err.(validation.Errors); ok {
+		for field, e := range ve {
+			errorsMap[field] = e.Error()
+		}
+	} else {
+		// fallback untuk error biasa
+		errorsMap["error"] = err.Error()
 	}
+
+	json.NewEncoder(w).Encode(ValidationErrorResponse{
+		Success: false,
+		Message: "Validation failed",
+		Errors:  errorsMap,
+	})
 }
