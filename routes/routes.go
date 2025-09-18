@@ -25,6 +25,11 @@ func RegisterRoutes(r *chi.Mux) {
 			r.Post("/", controllers.CreateCategoryHandler)
 			r.Put("/{id}", controllers.UpdateCategoryHandler)
 		})
+
+		//Transaction Routes
+		r.Route("/transactions", func(r chi.Router) {
+			r.Get("/", controllers.GetALlTransactionHandler)
+		})
 	})
 
 }
