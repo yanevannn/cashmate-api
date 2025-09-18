@@ -52,7 +52,7 @@ func CreateCategory(category *models.CreateCategoryInput) error {
 	return nil
 }
 
-func UpdateCategory(category *models.UpdateCategoryInput, userID int) (int64, error) {
+func UpdateCategory(category *models.UpdateCategoryInput, categoryID int, userID int) (int64, error) {
 
 	conn, err := config.ConnectDB()
 	if err != nil {
@@ -65,13 +65,13 @@ func UpdateCategory(category *models.UpdateCategoryInput, userID int) (int64, er
 		SET 
 			name = COALESCE($1, name), 
 			type = COALESCE($2, type),
-			description = COALESCE($2, description), 
-			icon = COALESCE($3, icon), 
-			color = COALESCE($4, color), 
+			description = COALESCE($3, description), 
+			icon = COALESCE($4, icon), 
+			color = COALESCE($5, color), 
 			updated_at = NOW()
-		WHERE id = $5 AND user_id = $6
+		WHERE id = $6 AND user_id = $7
 	`
-	result, err := conn.Exec(context.Background(), query, category.Name, category.Type, category.Description, category.Icon, category.Color, category.ID, userID)
+	result, err := conn.Exec(context.Background(), query, category.Name, category.Type, category.Description, category.Icon, category.Color, categoryID, userID)
 	if err != nil {
 		return 0, err
 	}

@@ -36,7 +36,6 @@ func (c CreateCategoryInput) Validate() error {
 }
 
 type UpdateCategoryInput struct {
-	ID          int    `json:"id"`
 	Name        string `json:"name,omitempty"`
 	Type        string `json:"type,omitempty"`
 	Description *string `json:"description,omitempty"`
@@ -44,13 +43,12 @@ type UpdateCategoryInput struct {
 	Color       string `json:"color,omitempty"`
 }
 
-func (u UpdateCategoryInput) Validate() error {
-	return validation.ValidateStruct(&u,
-		validation.Field(&u.ID, validation.Required),
-		validation.Field(&u.Name, validation.NilOrNotEmpty),
-		validation.Field(&u.Type, validation.NilOrNotEmpty, validation.In("income", "expense")),
-		validation.Field(&u.Description, validation.NilOrNotEmpty),
-		validation.Field(&u.Icon, validation.NilOrNotEmpty),
-		validation.Field(&u.Color, validation.NilOrNotEmpty),
+func (c UpdateCategoryInput) Validate() error {
+	return validation.ValidateStruct(
+		&c,
+		validation.Field(&c.Name, validation.Required),
+		validation.Field(&c.Type, validation.Required, validation.In("income", "expense")),
+		validation.Field(&c.Icon, validation.Required),
+		validation.Field(&c.Color, validation.Required),
 	)
 }

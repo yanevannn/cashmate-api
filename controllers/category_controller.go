@@ -10,10 +10,7 @@ import (
 	"cashmate-api/utils"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-playground/validator/v10"
 )
-
-var validate = validator.New()
 
 func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	categories, err := services.GetAllCategoriesService()
@@ -24,7 +21,7 @@ func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusOK, "Categories retrieved successfully", categories)
 }
 
-func CreateCategoryHandler(w http.ResponseWriter, r *http.Request){
+func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var categoriesInput models.CreateCategoryInput
 	if err := json.NewDecoder(r.Body).Decode(&categoriesInput); err != nil {
@@ -46,7 +43,7 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request){
 	utils.ResSuccess(w, http.StatusCreated, "Category created successfully", nil)
 }
 
-func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request){
+func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from query parameters
 	idStr := chi.URLParam(r, "id")
 	categoriesID, err := strconv.Atoi(idStr)
@@ -56,23 +53,21 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request){
 	}
 
 	defer r.Body.Close()
-	var categoryInput models.UpdateCategoryInput
-	if err := json.NewDecoder(r.Body).Decode(&categoryInput); err != nil {
+	var updateCategoryInput models.UpdateCategoryInput
+	if err := json.NewDecoder(r.Body).Decode(&updateCategoryInput); err != nil {
 		utils.ResError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	categoryInput.ID = categoriesID
 	// Validasi input menggunakan ozzo
-	if err := categoryInput.Validate(); err != nil {
+	if err := updateCategoryInput.Validate(); err != nil {
 		utils.ResValidationError(w, err) // Pastikan fungsi ini bisa menampilkan error ozzo
 		return
 	}
 
-	
 	// Temporary hardcoded user ID for testing purposes
 	userID := 1
-	if err := services.UpdateCategoryService(&categoryInput, categoriesID, userID); err != nil {
+	if err := services.UpdateCategoryService(&updateCategoryInput, categoriesID, userID); err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
