@@ -32,7 +32,7 @@ func CreateTransactionsService(userID int, Transaction models.CreateTransactionI
 	return nil
 }
 
-func GetTransactionByIdService (transactionID int, userID int) (*models.Transaction, error) {
+func GetTransactionByIdService(transactionID int, userID int) (*models.Transaction, error) {
 	transaction, err := repositories.GetTransactionByID(transactionID, userID)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func GetTransactionByIdService (transactionID int, userID int) (*models.Transact
 	return &transaction, nil
 }
 
-func UpdateTransactionService (transactionID int, userID int, transaction models.UpdateTransactionInput) error {
+func UpdateTransactionService(transactionID int, userID int, transaction models.UpdateTransactionInput) error {
 	// check if transactionexists
 	transactionExists, err := repositories.GetTransactionByID(transactionID, userID)
 	if err != nil {
@@ -60,6 +60,15 @@ func UpdateTransactionService (transactionID int, userID int, transaction models
 
 	// Update Transaction
 	err = repositories.UpdateTransactionByID(transactionID, transaction, category.Type)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteTransactionService(transactionID int, userID int) error {
+	err := repositories.DeleteTransactionByID(transactionID, userID)
 	if err != nil {
 		return err
 	}

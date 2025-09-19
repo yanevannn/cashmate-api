@@ -33,6 +33,7 @@ func RegisterRoutes(r *chi.Mux) {
 			r.Post("/", controllers.CreateTransactionHandler)
 			r.Get("/{id}", controllers.GetTransactionByIdHandler)
 			r.Put("/{id}", controllers.UpdateTransactionHandler)
+			r.Delete("/{id}", controllers.DeleteTransactionHandler)
 		})
 	})
 

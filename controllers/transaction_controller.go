@@ -96,3 +96,24 @@ func UpdateTransactionHandler (w http.ResponseWriter, r *http.Request) {
 
 	utils.ResSuccess(w, http.StatusOK, "Transaction updated successfully", nil)
 }
+
+func DeleteTransactionHandler (w http.ResponseWriter, r *http.Request) {
+	// get transaction id from url
+	transactionIdString := chi.URLParam(r, "id")
+	transactionID, err := strconv.Atoi(transactionIdString)
+	if err != nil || transactionID <= 0 {
+		utils.ResError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+
+	// get user id from token
+	userID := 1 // for test purpose
+
+	err = services.DeleteTransactionService(transactionID, userID)
+	if err != nil {
+		utils.ResError(w, http.StatusExpectationFailed, err.Error())
+		return
+	}
+
+	utils.ResSuccess(w, http.StatusOK, "Transaction deleted successfully", nil)
+}

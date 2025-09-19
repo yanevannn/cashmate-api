@@ -83,3 +83,20 @@ func UpdateTransactionByID (transactionID int, transaction models.UpdateTransact
 	}
 	return nil
 }
+
+func DeleteTransactionByID (transactionID int, userID int) error {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close(context.Background())
+	query := `UPDATE transactions 
+			  SET deleted_at = NOW()
+			  WHERE id = $1 AND user_id = $2`
+	_, err = conn.Exec(context.Background(), query, transactionID, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
