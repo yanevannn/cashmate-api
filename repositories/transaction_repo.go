@@ -12,7 +12,7 @@ func GetAllTransactions(userID int) ([]models.Transaction, error) {
 		return nil, err
 	}
 	defer conn.Close(context.Background())
-	query := "SELECT id, category_id, type, amount, description, transaction_date::TEXT, created_at::TEXT, updated_at::TEXT from transactions WHERE user_id = $1"
+	query := "SELECT id, user_id, category_id, type, amount, description, transaction_date::TEXT, created_at::TEXT, updated_at::TEXT from transactions WHERE user_id = $1"
 	rows, err := conn.Query(context.Background(), query, userID)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func GetAllTransactions(userID int) ([]models.Transaction, error) {
 	var Transactions []models.Transaction
 	for rows.Next() {
 		var Transaction models.Transaction
-		err := rows.Scan(&Transaction.ID, &Transaction.CategoriID, &Transaction.Type, &Transaction.Amount, &Transaction.Description, &Transaction.TransactionDate, &Transaction.CreatedAt, &Transaction.UpdatedAt)
+		err := rows.Scan(&Transaction.ID, &Transaction.UserID, &Transaction.CategoriID, &Transaction.Type, &Transaction.Amount, &Transaction.Description, &Transaction.TransactionDate, &Transaction.CreatedAt, &Transaction.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -30,4 +30,22 @@ func GetAllTransactions(userID int) ([]models.Transaction, error) {
 	}
 
 	return Transactions, nil
+}
+
+func CreateTransasction(userID int, typeTransaction string, transaction models.CreateTransactionInput) error {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close(context.Background())
+	query := `INSERT INTO transactions 
+			  (user_id, category_id, amount, type, description, transaction_date)
+			  VALUES ($1, $2, $3, $4,$5, $6 )`
+	_, err = conn.Exec(context.Background(), query, userID, transaction.CategoriID, transaction.Amount, typeTransaction, transaction.Description, transaction.TransactionDate)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

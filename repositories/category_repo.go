@@ -77,3 +77,34 @@ func UpdateCategory(category *models.UpdateCategoryInput, categoryID int, userID
 	}
 	return result.RowsAffected(), nil
 }
+
+func GetCategoryByID(categoryID int) (*models.Category, error) {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close(context.Background())
+
+	var Category models.Category
+
+	query := `SELECT id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM 
+			  categories WHERE id = $1`
+	// If i wanna find 1 data can use QueryRow
+	err = conn.QueryRow(context.Background(), query, categoryID).Scan(
+		&Category.ID,
+		&Category.Name,
+		&Category.Type,
+		&Category.Description,
+		&Category.Icon,
+		&Category.Color,
+		&Category.IsDefault,
+		&Category.IsActive,
+		&Category.CreatedAt,
+		&Category.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Category, nil
+}

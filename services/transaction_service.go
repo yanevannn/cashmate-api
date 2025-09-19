@@ -13,3 +13,20 @@ func GetAllTransactionsService(userID int) ([]models.Transaction, error) {
 
 	return transactions, nil
 }
+
+func CreateTransactionsService(userID int, Transaction models.CreateTransactionInput) error {
+	// check category id type is exspense or income
+	category, err := repositories.GetCategoryByID(Transaction.CategoriID)
+	if err != nil {
+		return err
+	}
+	transactionType := category.Type
+
+	// Create Transaction
+	err = repositories.CreateTransasction(userID, transactionType, Transaction)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

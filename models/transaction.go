@@ -17,7 +17,7 @@ type Transaction struct {
 
 type CreateTransactionInput struct {
 	CategoriID      int     `json:"category_id"`
-	Amount          float64 `json:"amaount"`
+	Amount          float64 `json:"amount"`
 	Description     *string `json:"description"`
 	TransactionDate string  `json:"transaction_date"`
 }
@@ -27,7 +27,7 @@ func (c CreateTransactionInput) Validate() error {
 		&c,
 		validation.Field(&c.CategoriID, validation.Required),
 		validation.Field(&c.Amount, validation.Required, validation.Min(0.01)),
-		validation.Field(&c.Description, validation.NilOrNotEmpty),
+		validation.Field(&c.Description, validation.When(c.Description != nil, validation.Length(1, 255))),
 		validation.Field(&c.TransactionDate, validation.Required, validation.Date("2006-01-02")),
 	)
 }

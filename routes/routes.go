@@ -29,6 +29,7 @@ func RegisterRoutes(r *chi.Mux) {
 		//Transaction Routes
 		r.Route("/transactions", func(r chi.Router) {
 			r.Get("/", controllers.GetALlTransactionHandler)
+			r.Post("/", controllers.CreateTransactionHandler)
 		})
 	})
 
