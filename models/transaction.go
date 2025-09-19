@@ -12,7 +12,6 @@ type Transaction struct {
 	TransactionDate string  `json:"transaction_date"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
-	DeletedAt       string  `json:"deleted_at"`
 }
 
 type CreateTransactionInput struct {
@@ -23,6 +22,23 @@ type CreateTransactionInput struct {
 }
 
 func (c CreateTransactionInput) Validate() error {
+	return validation.ValidateStruct(
+		&c,
+		validation.Field(&c.CategoriID, validation.Required),
+		validation.Field(&c.Amount, validation.Required, validation.Min(0.01)),
+		validation.Field(&c.Description, validation.When(c.Description != nil, validation.Length(1, 255))),
+		validation.Field(&c.TransactionDate, validation.Required, validation.Date("2006-01-02")),
+	)
+}
+
+type UpdateTransactionInput struct {
+	CategoriID      int     `json:"category_id"`
+	Amount          float64 `json:"amount"`
+	Description     *string  `json:"description"`
+	TransactionDate string  `json:"transaction_date"`
+}
+
+func (c UpdateTransactionInput) Validate() error {
 	return validation.ValidateStruct(
 		&c,
 		validation.Field(&c.CategoriID, validation.Required),
