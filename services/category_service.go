@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-func GetAllCategoriesService() ([]models.Category, error) {
-	categories, err := repositories.GetAllCategories()
+func GetAllCategoriesService(userID int) ([]models.Category, error) {
+	categories, err := repositories.GetAllCategories(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -29,5 +29,22 @@ func UpdateCategoryService(category *models.UpdateCategoryInput, categoryID int,
 		return fmt.Errorf("category not found or not updated")
 	}
 
+	return nil
+}
+
+func DeleteCategoryService(categoryID int, userID int) error {
+	category, err := repositories.GetCategoryByID(categoryID)
+	if err != nil {
+		return err
+	}
+
+	if userID != category.UserID {
+		return fmt.Errorf("you are not authorized to delete this category")
+	}
+
+	err = repositories.DeleteCategory(categoryID, userID)
+	if err != nil {
+		return err
+	}
 	return nil
 }

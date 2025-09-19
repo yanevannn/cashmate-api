@@ -13,7 +13,11 @@ import (
 )
 
 func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
-	categories, err := services.GetAllCategoriesService()
+	// Get user id from token
+	userID := 1 // for test purpose
+
+	categories, err := services.GetAllCategoriesService(userID)
+
 	if err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -73,4 +77,23 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ResSuccess(w, http.StatusOK, "Category updated successfully", nil)
+}
+
+func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from query parameters
+	idStr := chi.URLParam(r, "id")
+	categoriesID, err := strconv.Atoi(idStr)
+	if err != nil || categoriesID <= 0 {
+		utils.ResError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+
+	// Temporary hardcoded user ID for testing purposes
+	userID := 4
+	if err := services.DeleteCategoryService(categoriesID, userID); err != nil {
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.ResSuccess(w, http.StatusOK, "Category deleted successfully", nil)
 }

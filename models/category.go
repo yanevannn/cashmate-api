@@ -1,22 +1,19 @@
 package models
 
-import (
-	"time"
-
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-)
+import validation "github.com/go-ozzo/ozzo-validation/v4"
 
 type Category struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // "income" or "expense"
-	Description *string   `json:"description"`
-	Icon        string    `json:"icon"`
-	Color       string    `json:"color"`
-	IsDefault   bool      `json:"is_default"`
-	IsActive    bool      `json:"is_active"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          int     `json:"id"`
+	UserID      int     `json:"user_id"`
+	Name        string  `json:"name"`
+	Type        string  `json:"type"` // "income" or "expense"
+	Description *string `json:"description"`
+	Icon        string  `json:"icon"`
+	Color       string  `json:"color"`
+	IsDefault   bool    `json:"is_default"`
+	IsActive    bool    `json:"is_active"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
 }
 
 type CreateCategoryInput struct {

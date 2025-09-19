@@ -24,7 +24,7 @@ func RegisterRoutes(r *chi.Mux) {
 			r.Get("/", controllers.GetAllCategoriesHandler)
 			r.Post("/", controllers.CreateCategoryHandler)
 			r.Put("/{id}", controllers.UpdateCategoryHandler)
-			// r.Delete("/{id}", controllers.DeleteCategoryHandler) // Soon: Implement if needed
+			r.Delete("/{id}", controllers.DeleteCategoryHandler)
 		})
 
 		//Transaction Routes

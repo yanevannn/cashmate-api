@@ -7,16 +7,14 @@ import (
 	"cashmate-api/models"
 )
 
-func GetAllCategories() ([]models.Category, error) {
-	userID := 1 // Temporary hardcoded user ID for testing purposes
-
+func GetAllCategories(userID int) ([]models.Category, error) {
 	conn, err := config.ConnectDB()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close(context.Background())
 
-	query := `SELECT id, name, type, description, icon, color, is_default, is_active, created_at::TEXT, updated_at::TEXT FROM categories WHERE user_id = $1`
+	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at::TEXT, updated_at::TEXT FROM categories WHERE is_default = TRUE OR user_id = $1 `
 	rows, err := conn.Query(context.Background(), query, userID)
 	if err != nil {
 		return nil, err
@@ -26,7 +24,7 @@ func GetAllCategories() ([]models.Category, error) {
 	var categories []models.Category
 	for rows.Next() {
 		var category models.Category
-		err := rows.Scan(&category.ID, &category.Name, &category.Type, &category.Description, &category.Icon, &category.Color, &category.IsDefault, &category.IsActive, &category.CreatedAt, &category.UpdatedAt)
+		err := rows.Scan(&category.ID, &category.UserID, &category.Name, &category.Type, &category.Description, &category.Icon, &category.Color, &category.IsDefault, &category.IsActive, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -107,4 +105,19 @@ func GetCategoryByID(categoryID int) (*models.Category, error) {
 	}
 
 	return &Category, nil
+}
+
+func DeleteCategory(categoryID int, userID int) error {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	query := `DELETE FROM categories WHERE id = $1 AND user_id = $2 AND is_default = TRUE`
+	_, err = conn.Exec(context.Background(), query, categoryID, userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
