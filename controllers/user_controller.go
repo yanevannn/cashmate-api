@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -11,24 +10,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 )
-
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() // Ensure the body is closed after processing
-	// Parse Body Request for preparing data to be inserted
-	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		utils.ResError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// Call Service to Create User and send variable user
-	if err := services.CreateUserService(&user); err != nil {
-		utils.ResError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.ResSuccess(w, http.StatusCreated, "User created successfully", nil)
-}
 
 func GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract user ID from query parameters

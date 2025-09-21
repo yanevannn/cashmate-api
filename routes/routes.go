@@ -11,9 +11,13 @@ const apiV1 = "/v1"
 func RegisterRoutes(r *chi.Mux) {
 
 	r.Route(apiV1, func(r chi.Router) {
+		// Auth Routes
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", controllers.RegisterHandler)
+		})
+		
 		// User Routes
 		r.Route("/user", func(r chi.Router) {
-			r.Post("/", controllers.CreateUserHandler)
 			r.Get("/{id}", controllers.GetUserByIDHandler)
 			r.Get("/", controllers.GetAllUsersHandler)
 			r.Delete("/{id}", controllers.DeleteUserHandler)
