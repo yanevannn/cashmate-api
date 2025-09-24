@@ -27,3 +27,22 @@ func (r RegisterUser) Validate () error {
 		validation.Field(&r.Password, validation.Required, validation.Length(6, 100)),
 	)
 }
+
+type LoginRequest struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (r LoginRequest) Validate () error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.Email, validation.Required, is.Email),
+		validation.Field(&r.Password, validation.Required, validation.Length(6, 100)),
+	)
+}
+
+type LoginTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    int64  `json:"expires_at"`
+}
