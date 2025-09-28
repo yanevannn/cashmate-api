@@ -41,3 +41,20 @@ func RegisterUserService(user *models.RegisterUser) error {
 
 	return nil
 }
+
+
+func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResponse, error) {
+	// 1. Fetch user by email
+	user, err := repositories.GetUserByEmail(strings.ToLower(loginRequest.Email))
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, fmt.Errorf("invalid email or password")
+	}
+
+	// 2. Compare password
+	if !utils.CheckPasswordHash(loginRequest.Password, user.Password) {
+		return nil, fmt.Errorf("invalid email or password")
+	}
+}
