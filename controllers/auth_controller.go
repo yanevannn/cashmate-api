@@ -56,6 +56,26 @@ func LoginHandler (w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusOK, "Login successful", loginResponse)
 }
 
-// func RefreshTokenHandler (w http.ResponseWriter, r *http.Request) {
+func RefreshTokenHandler (w http.ResponseWriter, r *http.Request) {
+	var refreshTokenRequest models.RefreshTokenRequest
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&refreshTokenRequest); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	
+	// Validate input
+	if err := refreshTokenRequest.Validate(); err != nil {
+		utils.ResValidationError(w, err)
+		return
+	}
 
-// }
+	// call service to refresh token
+	refreshTokenResponse, err := services.RefreshTokenService(refreshTokenRequest.RefreshToken)
+	if err != nil {
+		utils.ResError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	utils.ResSuccess(w, http.StatusOK, "Token refreshed successfully", refreshTokenResponse)
+}

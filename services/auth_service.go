@@ -59,7 +59,7 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 	}
 
 	// 3. Generate AccessToken JWT & RefreshToken JWT
-	accessToken, expiresAt, err := utils.GenerateJWT(user.ID, user.Email, user.Role)
+	accessToken, expiresAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -75,4 +75,34 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 		ExpiresAt:    expiresAt.Unix(), // Unix timestamp in seconds
 	}, nil
 	
+}
+
+func RefreshTokenService (refreshToken string) (*models.RefreshTokenResponse, error) {
+	// 1. Validate Refresh Token
+	claims, err := utils.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("invalid refresh token: %v", err)
+	}
+
+	// 2. generate new access token , to get role we need to fetch user from db
+	user, err := repositories.GetUserByEmail(claims.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, fmt.Errorf("user not found")
+	}
+	
+	// 3. Generate new access token
+	newAccessToken, expiredAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. Return new access token
+	return &models.RefreshTokenResponse{
+		AccessToken: newAccessToken,
+		ExpiresAt:   expiredAt.Unix(),
+	}, nil
+
 }

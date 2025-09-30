@@ -42,7 +42,7 @@ type RefreshTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(userID int, email string, role string) (string, time.Time, error) {
+func GenerateAccessToken(userID int, email string, role string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(getAccessTokenTTL())
 	jwtSecret := getJWTSecret()
 
@@ -101,8 +101,8 @@ func ValidateAccessToken(tokenString string) (*AccessTokenClaims, error) {
 
 func ValidateRefreshToken(tokenString string) (*RefreshTokenClaims, error) {
 	jwtSecret := getJWTSecret()
-	claim := &RefreshTokenClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (interface{}, error) {
+	claims := &RefreshTokenClaims{} //create varible of type *RefreshTokenClaims to store the parsed claims
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
@@ -117,5 +117,5 @@ func ValidateRefreshToken(tokenString string) (*RefreshTokenClaims, error) {
 		return nil, errors.New("invalid token") // Check if token is valid
 	}
 
-	return claim, nil
+	return claims, nil
 }

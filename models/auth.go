@@ -47,3 +47,20 @@ type LoginTokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	ExpiresAt    int64  `json:"expires_at"`
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (r RefreshTokenRequest) Validate () error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.RefreshToken, validation.Required),
+	)
+}
+
+type RefreshTokenResponse struct {
+    AccessToken string `json:"access_token"`
+    ExpiresAt   int64  `json:"expires_at"`
+}
+

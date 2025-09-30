@@ -15,7 +15,7 @@ func RegisterRoutes(r *chi.Mux) {
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", controllers.RegisterHandler)
 			r.Post("/login", controllers.LoginHandler)
-			// r.Post("/refresh", controllers.RefreshTokenHandler)
+			r.Post("/refresh", controllers.RefreshTokenHandler)
 		})
 		
 		// User Routes
