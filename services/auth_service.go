@@ -50,11 +50,29 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 		return nil, err
 	}
 	if user == nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid Credentials")
 	}
 
 	// 2. Compare password
 	if !utils.CheckPasswordHash(loginRequest.Password, user.Password) {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid email or passwords")
 	}
+
+	// 3. Generate AccessToken JWT & RefreshToken JWT
+	accessToken, expiresAt, err := utils.GenerateJWT(user.ID, user.Email, user.Role)
+	if err != nil {
+		return nil, err
+	}
+	refreshToken, _, err := utils.GenerateRefreshJWT(user.ID, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. Return tokens
+	return &models.LoginTokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresAt:    expiresAt.Unix(), // Unix timestamp in seconds
+	}, nil
+	
 }
