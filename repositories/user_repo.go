@@ -139,3 +139,23 @@ func DeleteUser(id int) error {
 	}
 	return nil
 }
+
+func ActivateUser(email string) error {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	query := `UPDATE users
+			SET is_active = TRUE
+			WHERE email = $1`
+	_, err = conn.Exec(context.Background(), query, email)
+	
+	if err != nil {
+		log.Println("Error activating user:", err)
+		return err
+	}
+
+	return nil
+}

@@ -64,3 +64,16 @@ type RefreshTokenResponse struct {
     ExpiresAt   int64  `json:"expires_at"`
 }
 
+type OTPRequest struct {
+	Email string `json:"email"`
+	Code  string `json:"code"`
+}
+
+func (r OTPRequest) Validate () error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.Email, validation.Required, is.Email),
+		validation.Field(&r.Code, validation.Required, validation.Length(6, 6)),
+	)
+}
+

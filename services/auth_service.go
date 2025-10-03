@@ -39,7 +39,7 @@ func RegisterUserService(user *models.RegisterUser) error {
 	// 6. Send OTP via email using go routine
 	// send email in background so that user registration is not delayed
 	// we can use worker queue like rabbitmq or beanstalkd for better performance and reliability
-	go func(email, OTP, username string){
+	go func(email, OTP, username string) {
 		err := utils.SendEmailVerification(email, OTP, username)
 		if err != nil {
 			fmt.Println("Failed to send email:", err)
@@ -50,6 +50,38 @@ func RegisterUserService(user *models.RegisterUser) error {
 	return nil
 }
 
+func ActivateUserService(OTPRequest *models.OTPRequest) error {
+	// 1. Fetch user by email
+	user, err := repositories.GetUserByEmail(OTPRequest.Email)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fmt.Errorf("User not found")
+	}
+
+	// 2. Check if OTP is valid
+	isValid, err := repositories.VerificationOtpIsValid(user.ID, OTPRequest.Code)
+	if err != nil {
+		return err
+	}
+	if !isValid {
+		return fmt.Errorf("invalid or expired OTP")
+	}
+
+	// 3. Mark OTP as used
+	if err := repositories.ValidateOTP(user.ID, OTPRequest.Code); err != nil {
+		return err
+	}
+
+	// 4. Activate user account
+	err = repositories.ActivateUser(user.Email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResponse, error) {
 	// 1. Fetch user by email
@@ -82,10 +114,10 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 		RefreshToken: refreshToken,
 		ExpiresAt:    expiresAt.Unix(), // Unix timestamp in seconds
 	}, nil
-	
+
 }
 
-func RefreshTokenService (refreshToken string) (*models.RefreshTokenResponse, error) {
+func RefreshTokenService(refreshToken string) (*models.RefreshTokenResponse, error) {
 	// 1. Validate Refresh Token
 	claims, err := utils.ValidateRefreshToken(refreshToken)
 	if err != nil {
@@ -100,7 +132,7 @@ func RefreshTokenService (refreshToken string) (*models.RefreshTokenResponse, er
 	if user == nil {
 		return nil, fmt.Errorf("user not found")
 	}
-	
+
 	// 3. Generate new access token
 	newAccessToken, expiredAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
 	if err != nil {

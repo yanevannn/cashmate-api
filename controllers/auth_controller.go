@@ -79,3 +79,26 @@ func RefreshTokenHandler (w http.ResponseWriter, r *http.Request) {
 
 	utils.ResSuccess(w, http.StatusOK, "Token refreshed successfully", refreshTokenResponse)
 }
+
+func ActivateUserHandler (w http.ResponseWriter, r *http.Request) {
+	var OTPRequest models.OTPRequest
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&OTPRequest); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	
+	// Validate input
+	if err := OTPRequest.Validate(); err != nil {
+		utils.ResValidationError(w, err)
+		return
+	}
+
+	// Call service to verify OTP
+	if err := services.ActivateUserService(&OTPRequest); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.ResSuccess(w, http.StatusOK, "Account verified successfully. You can now log in.", nil)
+}
