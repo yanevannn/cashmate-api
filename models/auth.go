@@ -77,3 +77,14 @@ func (r OTPRequest) Validate () error {
 	)
 }
 
+type RequestActivateCode struct {
+	Email string `json:"email"`
+}
+
+func (r RequestActivateCode) Validate () error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.Email, validation.Required, is.Email),
+	)
+}
+

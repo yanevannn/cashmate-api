@@ -146,3 +146,33 @@ func RefreshTokenService(refreshToken string) (*models.RefreshTokenResponse, err
 	}, nil
 
 }
+
+func ResendTokenService(userEmail *models.RequestActivateCode) error {
+	// 1. Fetch user by email
+	user, err := repositories.GetUserByEmail(userEmail.Email)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fmt.Errorf("User not found")
+	}
+
+	// 2. Create OTP
+	OTP := utils.GenerateOTP(6)
+
+	// 4. Store OTP in DB
+	err = repositories.StoreNewOTP(user.ID, OTP)
+	if err != nil {
+		return err
+	}
+
+	// 5. Send OTP via email using go routine
+	go func(email, OTP, username string) {
+		err := utils.SendEmailVerification(email, OTP, username)
+		if err != nil {
+			fmt.Println("Failed to send email:", err)
+		}
+	}(user.Email, OTP, user.Username)
+
+	return nil
+}
