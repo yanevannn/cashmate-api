@@ -125,3 +125,49 @@ func ResendActivateCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	utils.ResSuccess(w, http.StatusOK, "Activation code resent successfully", nil)
 }
+
+func ForgotPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	var userEmail models.RequestActivateCode
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&userEmail); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Validate email
+	if err := userEmail.Validate(); err != nil {
+		utils.ResValidationError(w, err)
+		return
+	}
+	
+	// Call service to resend reset password code
+	if err := services.ResendResetPasswordService(&userEmail); err != nil {
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.ResSuccess(w, http.StatusOK, "Reset password code resent successfully", nil)
+}
+
+func ResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	var resetPasswordRequest models.ResetPasswordRequest
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&resetPasswordRequest); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// validate input 
+	if err := resetPasswordRequest.Validate(); err != nil {
+		utils.ResValidationError(w, err)
+		return
+	}
+
+	// call service to reset password
+	if err := services.ResetPasswordService(&resetPasswordRequest); err != nil {
+		utils.ResError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	
+	utils.ResSuccess(w, http.StatusOK, "Password reset successfully. You can now log in with your new password.", nil)
+}

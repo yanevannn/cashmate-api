@@ -159,3 +159,19 @@ func ActivateUser(email string) error {
 
 	return nil
 }
+
+func UpdateUserPassword(email string, userID int, newPassword string) error {
+	conn, err := config.ConnectDB()
+	if err != nil {
+		return err 
+	}
+	defer conn.Close(context.Background())
+
+	query := `UPDATE users SET password = $1 WHERE email = $2 AND id = $3`
+	_, err = conn.Exec(context.Background(), query, newPassword, email, userID)
+	if err != nil {
+		log.Println("Error updating user password:", err)
+		return err
+	}
+	return nil
+}

@@ -176,3 +176,73 @@ func ResendTokenService(userEmail *models.RequestActivateCode) error {
 
 	return nil
 }
+
+func ResendResetPasswordService(userEmail *models.RequestActivateCode) error {
+	// 1. Fetch user by email
+	user, err := repositories.GetUserByEmail(userEmail.Email)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fmt.Errorf("User not found")
+	}
+
+	// 2. Create OTP
+	OTP := utils.GenerateOTP(6)
+
+	// 4. Store OTP in DB
+	err = repositories.StoreNewOTP(user.ID, OTP)
+	if err != nil {
+		return err
+	}
+
+	// 5. Send OTP via email using go routine
+	go func(email, OTP, username string) {
+		err := utils.SendEmailResetPassword(email, OTP, username)
+		if err != nil {
+			fmt.Println("Failed to send email:", err)
+		}
+	}(user.Email, OTP, user.Username)
+
+	return nil
+}
+
+func ResetPasswordService(resetPasswordRequest *models.ResetPasswordRequest) error {
+	// 1. Fetch user by email
+	user, err := repositories.GetUserByEmail(resetPasswordRequest.Email)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fmt.Errorf("User not found")
+	}
+
+	// 2. Chcek if OTP is valid
+	isValid, err := repositories.VerificationOtpIsValid(user.ID, resetPasswordRequest.Code)
+	if err != nil {
+		return err
+	}
+	if !isValid {
+		return fmt.Errorf("invalid or expired OTP")
+	}
+
+	// 3. Hash new Password 
+	hashedpassword, err := utils.HashPassword(resetPasswordRequest.Password)
+	if err != nil {
+		return err
+	}
+
+	// 4. Update password in DB
+	err = repositories.UpdateUserPassword(user.Email, user.ID, hashedpassword)
+	if err != nil {
+		return err
+	}
+
+	// 5. Mark OTP as used
+	err = repositories.ValidateOTP(user.ID, resetPasswordRequest.Code)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

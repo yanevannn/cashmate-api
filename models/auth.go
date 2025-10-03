@@ -88,3 +88,18 @@ func (r RequestActivateCode) Validate () error {
 	)
 }
 
+type ResetPasswordRequest struct {
+	Email string `json:"email"`
+	Code  string `json:"code"`
+	Password string `json:"password"`
+}
+
+func (r ResetPasswordRequest) Validate () error {
+	return validation.ValidateStruct(
+		&r,
+		validation.Field(&r.Email, validation.Required, is.Email),
+		validation.Field(&r.Code, validation.Required, validation.Length(6, 6)),
+		validation.Field(&r.Password, validation.Required, validation.Length(6, 100)),
+	)
+}
+
