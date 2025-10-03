@@ -6,30 +6,35 @@ import (
 	"os"
 )
 
-func SendEmailVerification(toEmail string, otp string) error {
+func SendEmailVerification(toEmail string, otp string, name string) error {
 	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	smtpUser := os.Getenv("SMTP_USER")
-	smtpPass := os.Getenv("SMTP_PASS")
+    smtpPort := os.Getenv("SMTP_PORT")
+    smtpUser := os.Getenv("SMTP_USER")
+    smtpPass := os.Getenv("SMTP_PASS")
+    fromName := os.Getenv("SMTP_MAIL_FROM_NAME")
+    fromAddress := os.Getenv("SMTP_MAIL_FROM_ADDRESS")
 
-	subject := "Email Verification\r\n"
-	mime := "MIME-version: 1.0;\r\nContent-Type: text/html; charset=\"UTF-8\";\r\n\r\n"
+	from := fmt.Sprintf("From: %s <%s>\r\n", fromName, fromAddress)
+    to := fmt.Sprintf("To: %s\r\n", toEmail)
+    subject := "Subject: Email Verification\r\n"
+    mime := "MIME-version: 1.0;\r\nContent-Type: text/html; charset=\"UTF-8\";\r\n\r\n"
 
 	body := fmt.Sprintf(`
 						<html>
 							<body>
 								<h2 style="color:#4CAF50;">Cashmate Verification</h2>
-								<p>Hi 👋,</p>
+								<p>Hi %s 👋,</p>
 								<p>Your verification code is:</p>
 								<h3 style="color:#E91E63;">%s</h3>
 								<p>Please enter this code in the app to verify your account.</p>
 								<br>
-								<small>⚠️ This code will expire in 10 minutes.</small>
+								<small>⚠️ This code will expire in 15 minutes.</small>
 							</body>
 						</html>
-				`, otp)
+				`, name, otp)
 
-	message := []byte(subject + mime + body)
+	// Combine all parts of the email
+	message := []byte(from + to + subject + mime + body)
 
 	auth := smtp.PlainAuth("", smtpUser, smtpPass, smtpHost)
 
