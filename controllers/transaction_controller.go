@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"cashmate-api/middlewares"
 	"cashmate-api/models"
 	"cashmate-api/services"
 	"cashmate-api/utils"
@@ -12,7 +13,13 @@ import (
 )
 
 func GetAllTransactionHandler(w http.ResponseWriter, r *http.Request) {
-	var userID int = 1
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
+
 	transactions, err := services.GetAllTransactionsService(userID)
 	if err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
@@ -22,6 +29,13 @@ func GetAllTransactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTransactionHandler(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
+
 	defer r.Body.Close()
 	var transaction models.CreateTransactionInput
 	if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
@@ -34,7 +48,6 @@ func CreateTransactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := 1
 	err := services.CreateTransactionsService(userID, transaction)
 	if err != nil {
 		utils.ResError(w, http.StatusExpectationFailed, err.Error())
@@ -44,7 +57,7 @@ func CreateTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusCreated, "Transaction Created Succesfuly", nil)
 }
 
-func GetTransactionByIdHandler (w http.ResponseWriter, r *http.Request) {
+func GetTransactionByIdHandler(w http.ResponseWriter, r *http.Request) {
 	// get transaction id from url
 	transactionIdString := chi.URLParam(r, "id")
 	transactionID, err := strconv.Atoi(transactionIdString)
@@ -54,7 +67,12 @@ func GetTransactionByIdHandler (w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get user id from token
-	userID := 1 // for test purpose
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
 
 	transaction, err := services.GetTransactionByIdService(transactionID, userID)
 	if err != nil {
@@ -65,7 +83,7 @@ func GetTransactionByIdHandler (w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusOK, "Transaction retrieved successfully", transaction)
 }
 
-func UpdateTransactionHandler (w http.ResponseWriter, r *http.Request) {
+func UpdateTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	// get transaction id from url
 	transactionIdString := chi.URLParam(r, "id")
 	transactionID, err := strconv.Atoi(transactionIdString)
@@ -75,7 +93,12 @@ func UpdateTransactionHandler (w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get user id from token
-	userID := 1 // for test purpose
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
 
 	var transaction models.UpdateTransactionInput
 	if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
@@ -97,7 +120,7 @@ func UpdateTransactionHandler (w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusOK, "Transaction updated successfully", nil)
 }
 
-func DeleteTransactionHandler (w http.ResponseWriter, r *http.Request) {
+func DeleteTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	// get transaction id from url
 	transactionIdString := chi.URLParam(r, "id")
 	transactionID, err := strconv.Atoi(transactionIdString)
@@ -107,7 +130,12 @@ func DeleteTransactionHandler (w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get user id from token
-	userID := 1 // for test purpose
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
 
 	err = services.DeleteTransactionService(transactionID, userID)
 	if err != nil {
