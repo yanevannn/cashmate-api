@@ -61,6 +61,24 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ResSuccess(w, http.StatusCreated, "Category created successfully", nil)
 }
 
+func GetCategoryByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from query parameters
+	idString := chi.URLParam(r, "id")
+	categoryID, err := strconv.Atoi(idString)
+	if err != nil || categoryID <= 0 {
+		utils.ResError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+	
+	category, err := services.GetCategoryByIDSevice(categoryID)
+	if err != nil {
+		utils.ResError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	
+	utils.ResSuccess(w, http.StatusOK, "Category retrieved successfully", category)
+}
+
 func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middlewares.GetClaimsFromCtx(r)
 	if !ok {

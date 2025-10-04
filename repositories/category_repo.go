@@ -14,7 +14,9 @@ func GetAllCategories(userID int) ([]models.Category, error) {
 	}
 	defer conn.Close(context.Background())
 
-	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM categories WHERE is_default = TRUE OR user_id = $1 `
+	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at 
+			  FROM categories 
+			  WHERE is_default = TRUE OR user_id = $1 `
 	rows, err := conn.Query(context.Background(), query, userID)
 	if err != nil {
 		return nil, err
@@ -83,8 +85,8 @@ func GetCategoryByID(categoryID int) (*models.Category, error) {
 
 	var Category models.Category
 
-	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM 
-			  categories WHERE id = $1`
+	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at 
+			  FROM categories WHERE id = $1`
 	// If i wanna find 1 data can use QueryRow
 	err = conn.QueryRow(context.Background(), query, categoryID).Scan(
 		&Category.ID,

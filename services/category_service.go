@@ -18,6 +18,14 @@ func CreateCategoryService(userID int, category *models.CreateCategoryInput) err
 	return repositories.CreateCategory(userID, category)
 }
 
+func GetCategoryByIDSevice(categoryID int) (*models.Category, error){
+	category, err := repositories.GetCategoryByID(categoryID)
+	if err != nil {
+		return nil, err
+	}
+	return category, nil
+}
+
 func UpdateCategoryService(category *models.UpdateCategoryInput, categoryID int, userID int) error {
 	result, err := repositories.UpdateCategory(category, categoryID, userID)
 	if err != nil {
