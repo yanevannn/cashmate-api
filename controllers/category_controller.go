@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"cashmate-api/middlewares"
 	"cashmate-api/models"
 	"cashmate-api/services"
 	"cashmate-api/utils"
@@ -14,7 +15,12 @@ import (
 
 func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	// Get user id from token
-	userID := 1 // for test purpose
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
 
 	categories, err := services.GetAllCategoriesService(userID)
 
@@ -26,6 +32,14 @@ func GetAllCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	// Check user Id from token
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
+
 	defer r.Body.Close()
 	var categoriesInput models.CreateCategoryInput
 	if err := json.NewDecoder(r.Body).Decode(&categoriesInput); err != nil {
@@ -39,7 +53,7 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := services.CreateCategoryService(&categoriesInput); err != nil {
+	if err := services.CreateCategoryService(userID, &categoriesInput); err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -48,6 +62,13 @@ func CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
+
 	// Extract user ID from query parameters
 	idStr := chi.URLParam(r, "id")
 	categoriesID, err := strconv.Atoi(idStr)
@@ -69,8 +90,7 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Temporary hardcoded user ID for testing purposes
-	userID := 1
+	// Call the service to update the category
 	if err := services.UpdateCategoryService(&updateCategoryInput, categoriesID, userID); err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -80,6 +100,13 @@ func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middlewares.GetClaimsFromCtx(r)
+	if !ok {
+		utils.ResError(w, http.StatusUnauthorized, "Missing or invalid token claims")
+		return
+	}
+	userID := claims.UserID
+
 	// Extract user ID from query parameters
 	idStr := chi.URLParam(r, "id")
 	categoriesID, err := strconv.Atoi(idStr)
@@ -88,8 +115,7 @@ func DeleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Temporary hardcoded user ID for testing purposes
-	userID := 4
+	// Call the service to delete the category
 	if err := services.DeleteCategoryService(categoriesID, userID); err != nil {
 		utils.ResError(w, http.StatusInternalServerError, err.Error())
 		return

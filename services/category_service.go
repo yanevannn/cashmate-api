@@ -14,8 +14,8 @@ func GetAllCategoriesService(userID int) ([]models.Category, error) {
 	return categories, nil
 }
 
-func CreateCategoryService(category *models.CreateCategoryInput) error {
-	return repositories.CreateCategory(category)
+func CreateCategoryService(userID int, category *models.CreateCategoryInput) error {
+	return repositories.CreateCategory(userID, category)
 }
 
 func UpdateCategoryService(category *models.UpdateCategoryInput, categoryID int, userID int) error {
@@ -39,7 +39,7 @@ func DeleteCategoryService(categoryID int, userID int) error {
 	}
 
 	if userID != category.UserID {
-		return fmt.Errorf("you are not authorized to delete this category")
+		return fmt.Errorf("You are not authorized to delete this category")
 	}
 
 	err = repositories.DeleteCategory(categoryID, userID)

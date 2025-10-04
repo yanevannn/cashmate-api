@@ -14,7 +14,7 @@ func GetAllCategories(userID int) ([]models.Category, error) {
 	}
 	defer conn.Close(context.Background())
 
-	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at::TEXT, updated_at::TEXT FROM categories WHERE is_default = TRUE OR user_id = $1 `
+	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM categories WHERE is_default = TRUE OR user_id = $1 `
 	rows, err := conn.Query(context.Background(), query, userID)
 	if err != nil {
 		return nil, err
@@ -33,9 +33,7 @@ func GetAllCategories(userID int) ([]models.Category, error) {
 	return categories, nil
 }
 
-func CreateCategory(category *models.CreateCategoryInput) error {
-	userID := 1 // Temporary hardcoded user ID for testing purposes
-
+func CreateCategory(userID int, category *models.CreateCategoryInput) error {
 	conn, err := config.ConnectDB()
 	if err != nil {
 		return err
@@ -85,11 +83,12 @@ func GetCategoryByID(categoryID int) (*models.Category, error) {
 
 	var Category models.Category
 
-	query := `SELECT id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM 
+	query := `SELECT id, user_id, name, type, description, icon, color, is_default, is_active, created_at, updated_at FROM 
 			  categories WHERE id = $1`
 	// If i wanna find 1 data can use QueryRow
 	err = conn.QueryRow(context.Background(), query, categoryID).Scan(
 		&Category.ID,
+		&Category.UserID,
 		&Category.Name,
 		&Category.Type,
 		&Category.Description,
@@ -114,10 +113,11 @@ func DeleteCategory(categoryID int, userID int) error {
 	}
 	defer conn.Close(context.Background())
 
-	query := `DELETE FROM categories WHERE id = $1 AND user_id = $2 AND is_default = TRUE`
+	query := `DELETE FROM categories WHERE id = $1 AND user_id = $2 AND is_default = FALSE`
 	_, err = conn.Exec(context.Background(), query, categoryID, userID)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
