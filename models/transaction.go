@@ -1,6 +1,8 @@
 package models
 
-import validation "github.com/go-ozzo/ozzo-validation/v4"
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
 
 type Transaction struct {
 	ID              int     `json:"id"`
@@ -34,7 +36,7 @@ func (c CreateTransactionInput) Validate() error {
 type UpdateTransactionInput struct {
 	CategoriID      int     `json:"category_id"`
 	Amount          float64 `json:"amount"`
-	Description     *string  `json:"description"`
+	Description     *string `json:"description"`
 	TransactionDate string  `json:"transaction_date"`
 }
 

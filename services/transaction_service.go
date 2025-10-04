@@ -4,6 +4,7 @@ import (
 	"cashmate-api/models"
 	"cashmate-api/repositories"
 	"errors"
+	"time"
 )
 
 func GetAllTransactionsService(userID int) ([]models.Transaction, error) {
@@ -23,8 +24,15 @@ func CreateTransactionsService(userID int, Transaction models.CreateTransactionI
 	}
 	transactionType := category.Type
 
+	// Convert Date
+	transactionDate, err := time.Parse("2006-01-02", Transaction.TransactionDate)
+	if err != nil {
+		return errors.New("Invalid date format. Please use YYYY-MM-DD")
+	}
+	Transaction.TransactionDate = transactionDate.Format("2006-01-02")
+
 	// Create Transaction
-	err = repositories.CreateTransasction(userID, transactionType, Transaction)
+	err = repositories.CreateTransaction(userID, transactionType, Transaction)
 	if err != nil {
 		return err
 	}
@@ -35,8 +43,9 @@ func CreateTransactionsService(userID int, Transaction models.CreateTransactionI
 func GetTransactionByIdService(transactionID int, userID int) (*models.Transaction, error) {
 	transaction, err := repositories.GetTransactionByID(transactionID, userID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Transaction not found")
 	}
+
 	return &transaction, nil
 }
 
@@ -68,7 +77,13 @@ func UpdateTransactionService(transactionID int, userID int, transaction models.
 }
 
 func DeleteTransactionService(transactionID int, userID int) error {
-	err := repositories.DeleteTransactionByID(transactionID, userID)
+	// check if transaction exists
+	_, err := repositories.GetTransactionByID(transactionID, userID)
+	if err != nil {
+		return err
+	}
+	// Delete Transaction
+	err = repositories.DeleteTransactionByID(transactionID, userID)
 	if err != nil {
 		return err
 	}

@@ -32,7 +32,7 @@ func GetAllTransactions(userID int) ([]models.Transaction, error) {
 	return Transactions, nil
 }
 
-func CreateTransasction(userID int, typeTransaction string, transaction models.CreateTransactionInput) error {
+func CreateTransaction(userID int, typeTransaction string, transaction models.CreateTransactionInput) error {
 	conn, err := config.ConnectDB()
 	if err != nil {
 		return err
