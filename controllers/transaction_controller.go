@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func GetALlTransactionHandler(w http.ResponseWriter, r *http.Request) {
+func GetAllTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	var userID int = 1
 	transactions, err := services.GetAllTransactionsService(userID)
 	if err != nil {
