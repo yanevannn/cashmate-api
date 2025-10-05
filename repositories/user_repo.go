@@ -17,10 +17,10 @@ func GetUserByEmail(email string) (*models.User, error) {
 	}
 	defer conn.Close(context.Background())
 
-	query := `SELECT id, username, email, password, role FROM users WHERE email = $1` // Specify columns explicitly makes it clearer and avoids issues if table schema changes
+	query := `SELECT id, username, email, password, is_active, role FROM users WHERE email = $1` // Specify columns explicitly makes it clearer and avoids issues if table schema changes
 	row := conn.QueryRow(context.Background(), query, email)
 	var user models.User
-	err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
+	err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.IsActive, &user.Role)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

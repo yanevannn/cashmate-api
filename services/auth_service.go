@@ -98,6 +98,11 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 		return nil, fmt.Errorf("invalid email or passwords")
 	}
 
+	// 2. Check if user is active
+	if !user.IsActive {
+		return nil, fmt.Errorf("account is not activated, please check your email for activation code")
+	}
+
 	// 3. Generate AccessToken JWT & RefreshToken JWT
 	accessToken, expiresAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
 	if err != nil {
