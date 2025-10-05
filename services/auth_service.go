@@ -104,7 +104,7 @@ func LoginUserService(loginRequest *models.LoginRequest) (*models.LoginTokenResp
 	}
 
 	// 3. Generate AccessToken JWT & RefreshToken JWT
-	accessToken, expiresAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
+	accessToken, expiresAt, err := utils.GenerateAccessToken(user.ID, user.Username, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func RefreshTokenService(refreshToken string) (*models.RefreshTokenResponse, err
 	}
 
 	// 3. Generate new access token
-	newAccessToken, expiredAt, err := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
+	newAccessToken, expiredAt, err := utils.GenerateAccessToken(user.ID, user.Username, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func ResetPasswordService(resetPasswordRequest *models.ResetPasswordRequest) err
 		return fmt.Errorf("invalid or expired OTP")
 	}
 
-	// 3. Hash new Password 
+	// 3. Hash new Password
 	hashedpassword, err := utils.HashPassword(resetPasswordRequest.Password)
 	if err != nil {
 		return err

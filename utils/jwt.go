@@ -30,9 +30,10 @@ func getRefreshTokenTTL() time.Duration {
 }
 
 type AccessTokenClaims struct {
-	UserID int    `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	UserID   int    `json:"user_id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -42,14 +43,15 @@ type RefreshTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID int, email string, role string) (string, time.Time, error) {
+func GenerateAccessToken(userID int, username string, email string, role string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(getAccessTokenTTL())
 	jwtSecret := getJWTSecret()
 
 	claim := &AccessTokenClaims{
-		UserID: userID,
-		Email:  email,
-		Role:   role,
+		UserID:   userID,
+		Username: username,
+		Email:    email,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
