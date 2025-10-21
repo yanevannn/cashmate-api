@@ -36,15 +36,18 @@ func RegisterUserService(user *models.RegisterUser) error {
 		return err
 	}
 
+	// 6. Create Link for email verification
+	linkActivation := fmt.Sprintf("%s/activate?email=%s&code=%s", utils.GetFrontendURL(), user.Email, OTP)
+
 	// 6. Send OTP via email using go routine
 	// send email in background so that user registration is not delayed
 	// we can use worker queue like rabbitmq or beanstalkd for better performance and reliability
-	go func(email, OTP, username string) {
-		err := utils.SendEmailVerification(email, OTP, username)
+	go func(email, OTP, username, linkActivation string) {
+		err := utils.SendEmailVerification(email, OTP, username, linkActivation)
 		if err != nil {
 			fmt.Println("Failed to send email:", err)
 		}
-	}(user.Email, OTP, user.Username)
+	}(user.Email, OTP, user.Username, linkActivation)
 
 	// 7 END
 	return nil
@@ -171,13 +174,16 @@ func ResendTokenService(userEmail *models.RequestActivateCode) error {
 		return err
 	}
 
-	// 5. Send OTP via email using go routine
-	go func(email, OTP, username string) {
-		err := utils.SendEmailVerification(email, OTP, username)
+	// 5. Create Link for email verification
+	linkActivation := fmt.Sprintf("%s/activate?email=%s&code=%s", utils.GetFrontendURL(), user.Email, OTP)
+
+	// 6. Send OTP via email using go routine
+	go func(email, OTP, username, linkActivation string) {
+		err := utils.SendEmailVerification(email, OTP, username, linkActivation)
 		if err != nil {
 			fmt.Println("Failed to send email:", err)
 		}
-	}(user.Email, OTP, user.Username)
+	}(user.Email, OTP, user.Username, linkActivation)
 
 	return nil
 }
